@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiplication Tables for Kids | Padhe</title>
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #fbc2eb 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  header h1 {
+    font-size: 3em;
+    color: #d6336c;
+    text-shadow: 3px 3px 0 #fff;
+  }
+  header p {
+    font-size: 1.4em;
+    color: #333;
+    margin-top: 8px;
+  }
+  .selector-box {
+    max-width: 700px;
+    margin: 0 auto 30px auto;
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    text-align: center;
+  }
+  .selector-box label {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #4a4a4a;
+    display: block;
+    margin-bottom: 12px;
+  }
+  #tableNumber {
+    font-size: 2em;
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 3px solid #74b9ff;
+    text-align: center;
+    width: 140px;
+  }
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .buttons button {
+    font-size: 1.6em;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 14px;
+    background: #74b9ff;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #487eb0;
+  }
+  .buttons button:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #487eb0;
+  }
+  .buttons button.active {
+    background: #d6336c;
+    box-shadow: 0 4px 0 #a4133c;
+  }
+  #tableDisplay {
+    max-width: 700px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+  #tableDisplay h2 {
+    text-align: center;
+    font-size: 2.4em;
+    color: #0984e3;
+    margin-bottom: 20px;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 2.2em;
+    font-weight: bold;
+    padding: 14px 10px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+    background: #f1f8ff;
+    color: #2d3436;
+    transition: transform 0.15s ease, background 0.15s ease;
+    cursor: pointer;
+  }
+  .row.row-tap {
+    transform: scale(1.05);
+    background: #ffeaa7 !important;
+  }
+  .row:nth-child(even) {
+    background: #fff0f6;
+  }
+  .row .eq {
+    color: #d6336c;
+  }
+  .mode-switch {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 10px auto 25px auto;
+  }
+  .mode-switch button {
+    font-size: 1.4em;
+    font-weight: bold;
+    padding: 10px 22px;
+    border: none;
+    border-radius: 14px;
+    background: #ffeaa7;
+    color: #6c5b00;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #d4af00;
+  }
+  .mode-switch button.active {
+    background: #00b894;
+    color: #fff;
+    box-shadow: 0 4px 0 #019875;
+  }
+  #quizBox {
+    max-width: 700px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    text-align: center;
+  }
+  #quizBox h2 {
+    font-size: 2.2em;
+    color: #0984e3;
+    margin-bottom: 15px;
+  }
+  #quizQuestion {
+    font-size: 3em;
+    font-weight: bold;
+    color: #2d3436;
+    margin: 20px 0;
+  }
+  #quizOptions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  #quizOptions button {
+    font-size: 2em;
+    font-weight: bold;
+    padding: 18px;
+    border: none;
+    border-radius: 14px;
+    background: #74b9ff;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #487eb0;
+  }
+  #quizOptions button.correct {
+    background: #00b894;
+    box-shadow: 0 4px 0 #019875;
+    animation: correctPop 0.5s ease;
+  }
+  #quizOptions button.wrong {
+    background: #d63031;
+    box-shadow: 0 4px 0 #a11313;
+    animation: wrongShake 0.5s ease;
+  }
+  @keyframes correctPop {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.25) rotate(-3deg); }
+    60%  { transform: scale(0.95) rotate(3deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  @keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-10px); }
+    40%      { transform: translateX(10px); }
+    60%      { transform: translateX(-8px); }
+    80%      { transform: translateX(8px); }
+  }
+  #quizFeedback.feedback-correct {
+    animation: feedbackPop 0.5s ease;
+  }
+  #quizFeedback.feedback-wrong {
+    animation: feedbackShake 0.5s ease;
+  }
+  @keyframes feedbackPop {
+    0%   { transform: scale(0.5); opacity: 0; }
+    60%  { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  @keyframes feedbackShake {
+    0%, 100% { transform: translateX(0); }
+    25%      { transform: translateX(-6px); }
+    75%      { transform: translateX(6px); }
+  }
+  .confetti {
+    position: fixed;
+    top: -20px;
+    font-size: 2em;
+    animation: fall linear forwards;
+    pointer-events: none;
+    z-index: 999;
+  }
+  @keyframes fall {
+    to { transform: translateY(105vh) rotate(360deg); opacity: 0.3; }
+  }
+  #quizFeedback {
+    font-size: 1.8em;
+    font-weight: bold;
+    min-height: 45px;
+    margin-bottom: 10px;
+  }
+  #quizScore {
+    font-size: 1.5em;
+    color: #555;
+    margin-bottom: 15px;
+  }
+  #nextQuizBtn, #finishQuizBtn, #restartQuizBtn {
+    font-size: 1.5em;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 14px;
+    background: #d6336c;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #a4133c;
+    margin: 5px;
+  }
+  #finishQuizBtn {
+    background: #636e72;
+    box-shadow: 0 4px 0 #2d3436;
+  }
+  #quizScore {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  #quizScore span.right-count { color: #00b894; }
+  #quizScore span.wrong-count { color: #d63031; }
+  #quizResult {
+    display: none;
+  }
+  #quizResult h3 {
+    font-size: 2em;
+    color: #0984e3;
+    margin-bottom: 15px;
+  }
+  #quizResult .result-stats {
+    font-size: 1.6em;
+    font-weight: bold;
+    margin: 12px 0;
+  }
+  #quizResult .result-stats .right-count { color: #00b894; }
+  #quizResult .result-stats .wrong-count { color: #d63031; }
+  #quizResult .result-percent {
+    font-size: 2.4em;
+    font-weight: bold;
+    color: #d6336c;
+    margin: 15px 0;
+  }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 1.1em;
+    color: #555;
+  }
+  @media (max-width: 500px) {
+    header h1 { font-size: 2.2em; }
+    .row { font-size: 1.6em; }
+    .buttons button { font-size: 1.3em; padding: 8px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌟 Learn Tables 🌟</h1>
+  <p>English Multiplication Tables for Kids</p>
+</header>
+
+<div class="selector-box">
+  <label for="tableNumber">Choose a Table Number:</label>
+  <input type="number" id="tableNumber" min="1" max="10" value="1">
+  <div class="buttons" id="quickButtons"></div>
+</div>
+
+<div class="mode-switch">
+  <button id="tableModeBtn" class="active" onclick="switchMode('table')">📖 View Table</button>
+  <button id="quizModeBtn" onclick="switchMode('quiz')">🧠 Quiz</button>
+</div>
+
+<div id="tableDisplay">
+  <h2 id="tableTitle">Table of 1</h2>
+  <div id="rows"></div>
+</div>
+
+<div id="quizBox" style="display:none;">
+  <h2>Quiz Time!</h2>
+  <label for="quizTableSelect" style="font-size:1.4em; font-weight:bold; color:#4a4a4a; display:block; margin-bottom:10px;">Select Table:</label>
+  <select id="quizTableSelect" onchange="newQuizQuestion()" style="font-size:1.6em; padding:8px 18px; border-radius:12px; border:3px solid #74b9ff; margin-bottom:20px;"></select>
+  <div id="quizScore"><span class="right-count">✅ Right: 0</span><span class="wrong-count">❌ Wrong: 0</span></div>
+  <div id="quizLive">
+    <div id="quizQuestion">? × ? = ?</div>
+    <div id="quizOptions"></div>
+    <div id="quizFeedback"></div>
+    <button id="nextQuizBtn" onclick="newQuizQuestion()">Next Question ▶</button>
+    <button id="finishQuizBtn" onclick="finishQuiz()">🏁 Finish Quiz</button>
+  </div>
+  <div id="quizResult">
+    <h3>🎯 Quiz Result</h3>
+    <div class="result-stats"><span class="right-count">✅ Right: 0</span> &nbsp; <span class="wrong-count">❌ Wrong: 0</span></div>
+    <div class="result-percent">0%</div>
+    <button id="restartQuizBtn" onclick="restartQuiz()">🔄 Play Again</button>
+  </div>
+</div>
+
+<footer>Created by..Mahesh S..✨</footer>
+
+<script>
+  const numberInput = document.getElementById('tableNumber');
+  const rowsDiv = document.getElementById('rows');
+  const tableTitle = document.getElementById('tableTitle');
+  const quickButtons = document.getElementById('quickButtons');
+
+  function buildTable(n) {
+    tableTitle.textContent = `Table of ${n}`;
+    rowsDiv.innerHTML = '';
+    for (let i = 1; i <= 10; i++) {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `<span>${n}</span><span>&times;</span><span>${i}</span><span class="eq">=</span><span>${n*i}</span>`;
+      let touched = false;
+      row.addEventListener('touchstart', () => {
+        touched = true;
+        if (navigator.vibrate) navigator.vibrate(30);
+        row.classList.add('row-tap');
+        setTimeout(() => row.classList.remove('row-tap'), 200);
+      });
+      row.addEventListener('click', () => {
+        if (touched) { touched = false; return; }
+        if (navigator.vibrate) navigator.vibrate(30);
+        row.classList.add('row-tap');
+        setTimeout(() => row.classList.remove('row-tap'), 200);
+      });
+      rowsDiv.appendChild(row);
+    }
+    document.querySelectorAll('.buttons button').forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.n) === n);
+    });
+  }
+
+  // ---- Mode switching ----
+  const tableDisplay = document.getElementById('tableDisplay');
+  const quizBox = document.getElementById('quizBox');
+  const tableModeBtn = document.getElementById('tableModeBtn');
+  const quizModeBtn = document.getElementById('quizModeBtn');
+  const selectorBox = document.querySelector('.selector-box');
+
+  function switchMode(mode) {
+    if (mode === 'table') {
+      tableDisplay.style.display = 'block';
+      quizBox.style.display = 'none';
+      selectorBox.style.display = 'block';
+      tableModeBtn.classList.add('active');
+      quizModeBtn.classList.remove('active');
+    } else {
+      tableDisplay.style.display = 'none';
+      quizBox.style.display = 'block';
+      selectorBox.style.display = 'none';
+      tableModeBtn.classList.remove('active');
+      quizModeBtn.classList.add('active');
+      restartQuiz();
+    }
+  }
+
+  // ---- Quiz logic ----
+  let quizScore = 0;
+  let quizTotal = 0;
+  let rightCount = 0;
+  let wrongCount = 0;
+  let currentAnswer = 0;
+
+  function updateScoreDisplay() {
+    document.querySelector('#quizScore .right-count').textContent = `✅ Right: ${rightCount}`;
+    document.querySelector('#quizScore .wrong-count').textContent = `❌ Wrong: ${wrongCount}`;
+  }
+
+  function restartQuiz() {
+    quizScore = 0;
+    quizTotal = 0;
+    rightCount = 0;
+    wrongCount = 0;
+    updateScoreDisplay();
+    document.getElementById('quizLive').style.display = 'block';
+    document.getElementById('quizResult').style.display = 'none';
+    newQuizQuestion();
+  }
+
+  function finishQuiz() {
+    document.getElementById('quizLive').style.display = 'none';
+    const resultBox = document.getElementById('quizResult');
+    resultBox.querySelector('.right-count').textContent = `✅ Right: ${rightCount}`;
+    resultBox.querySelector('.wrong-count').textContent = `❌ Wrong: ${wrongCount}`;
+    const percent = quizTotal > 0 ? Math.round((rightCount / quizTotal) * 100) : 0;
+    resultBox.querySelector('.result-percent').textContent = `${percent}%`;
+    resultBox.style.display = 'block';
+    if (percent >= 70) launchConfetti();
+  }
+
+  function newQuizQuestion() {
+    const feedbackEl = document.getElementById('quizFeedback');
+    feedbackEl.textContent = '';
+    feedbackEl.classList.remove('feedback-correct', 'feedback-wrong');
+    const a = parseInt(document.getElementById('quizTableSelect').value) || 1;
+    const b = Math.floor(Math.random() * 10) + 1;
+    currentAnswer = a * b;
+    document.getElementById('quizQuestion').textContent = `${a} × ${b} = ?`;
+
+    const options = new Set([currentAnswer]);
+    while (options.size < 4) {
+      const offset = Math.floor(Math.random() * 10) - 5;
+      const wrong = currentAnswer + offset;
+      if (wrong > 0 && wrong !== currentAnswer) options.add(wrong);
+    }
+    const optionsArr = Array.from(options).sort(() => Math.random() - 0.5);
+
+    const optionsDiv = document.getElementById('quizOptions');
+    optionsDiv.innerHTML = '';
+    optionsArr.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.onclick = () => checkAnswer(opt, btn);
+      optionsDiv.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(selected, btn) {
+    quizTotal++;
+    const feedback = document.getElementById('quizFeedback');
+    const allBtns = document.querySelectorAll('#quizOptions button');
+    allBtns.forEach(b => b.disabled = true);
+    feedback.classList.remove('feedback-correct', 'feedback-wrong');
+
+    if (selected === currentAnswer) {
+      quizScore++;
+      rightCount++;
+      btn.classList.add('correct');
+      feedback.textContent = '✅ Correct! Great!';
+      feedback.style.color = '#00b894';
+      feedback.classList.add('feedback-correct');
+      launchConfetti();
+      if (navigator.vibrate) navigator.vibrate(100);
+    } else {
+      wrongCount++;
+      btn.classList.add('wrong');
+      feedback.textContent = `❌ Oops! Correct answer: ${currentAnswer}`;
+      feedback.style.color = '#d63031';
+      feedback.classList.add('feedback-wrong');
+      allBtns.forEach(b => {
+        if (parseInt(b.textContent) === currentAnswer) b.classList.add('correct');
+      });
+      if (navigator.vibrate) navigator.vibrate([80, 60, 80]);
+    }
+    updateScoreDisplay();
+  }
+
+  function launchConfetti() {
+    const emojis = ['🎉', '⭐', '🌟', '🎊', '✨'];
+    for (let i = 0; i < 12; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti';
+      piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.animationDuration = (1 + Math.random()) + 's';
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 2000);
+    }
+  }
+
+  // Quick buttons 1-10
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.dataset.n = i;
+    btn.onclick = () => {
+      numberInput.value = i;
+      buildTable(i);
+    };
+    quickButtons.appendChild(btn);
+  }
+
+  numberInput.addEventListener('input', () => {
+    let n = parseInt(numberInput.value);
+    if (!n || n < 1) n = 1;
+    if (n > 10) n = 10;
+    buildTable(n);
+  });
+
+  // Populate quiz table select 1-10
+  const quizTableSelect = document.getElementById('quizTableSelect');
+  for (let i = 1; i <= 10; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `Table of ${i}`;
+    quizTableSelect.appendChild(opt);
+  }
+
+  buildTable(1);
+</script>
+
+</body>
+</html>
